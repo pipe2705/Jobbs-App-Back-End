@@ -7,8 +7,18 @@ app.use(express.json());
 
 const port = 3000;
 
-app.get("/", (req, res) => {
-  response.send("To see the job listing visit /api/jobs");
+// app.get("/", (req, res) => {
+//   response.send("To see the job listing visit /api/jobs");
+// });
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
 });
 
 /*********************************
@@ -185,8 +195,7 @@ app.put("/api/Jobs/:id", (req, res) => {
 
 app.delete("/api/Jobs/:id", (req, res) => {
   let deleteByJobId = `DELETE FROM Jobs WHERE Jobs.oid = ?`;
-  let jobId = req.param.id;
-
+  let jobId = req.params.id;
   database.run(deleteByJobId, jobId, error => {
     if (error) {
       res.sendStatus(500);
