@@ -194,8 +194,9 @@ app.put("/api/Jobs/:id", (req, res) => {
 //delete job
 
 app.delete("/api/Jobs/:id", (req, res) => {
-  let deleteByJobId = `DELETE FROM Jobs WHERE Jobs.oid = ?`;
   let jobId = req.params.id;
+  let deleteByJobId = `DELETE FROM Jobs WHERE Jobs.oid = ?`;
+
   database.run(deleteByJobId, jobId, error => {
     if (error) {
       res.sendStatus(500);
