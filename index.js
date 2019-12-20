@@ -12,8 +12,8 @@ const port = 3000;
 // });
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "*");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "*");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -123,7 +123,7 @@ app.delete("/api/JobSeeker/:id", (req, res) => {
 
 // get all Jobs
 app.get("/api/Jobs", (req, res) => {
-  let getAllJobs = "SELECT * FROM Jobs";
+  let getAllJobs = "SELECT *, oid  FROM Jobs";
   database.all(getAllJobs, (error, results) => {
     if (error) {
       console.log("Get all Jobs table failed", error);
@@ -205,14 +205,23 @@ app.put("/api/Jobs/:id", (req, res) => {
 app.delete("/api/Jobs/:id", (req, res) => {
   let jobId = req.params.id;
   let deleteByJobId = `DELETE FROM Jobs WHERE Jobs.oid = ?`;
-
-  database.run(deleteByJobId, jobId, error => {
+  // let deleteByJobId = `DELETE FROM Jobs WHERE Jobs.oid = ?`;
+  // let jobId = req.params.id;
+  database.run(deleteByJobId, jobId, function(error) {
     if (error) {
-      res.sendStatus(500);
       console.log("Could not delete Job listing", error);
+      res.sendStatus(500);
     } else {
       console.log("Job Listing Deleted");
-      res.status(200).json({ id: rowid });
+      let getAllJobs = "SELECT * FROM Jobs";
+      database.all(getAllJobs, function(error, results) {
+        if (error) {
+          console.log(new Error("Get all Jobs table failed"), error);
+          res.sendStatus(500);
+        } else {
+          res.status(200).json(results);
+        }
+      });
     }
   });
 });
