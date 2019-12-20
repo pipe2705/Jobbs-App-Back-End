@@ -138,7 +138,7 @@ app.get("/api/Jobs", (req, res) => {
 
 app.get("/api/Jobs/:id", (req, res) => {
   let jobId = req.params.id;
-  let getOneJob = `SELECT * FROM Jobs WHERE jobs.oid = ${jobId}`;
+  let getOneJob = `SELECT * , Jobs.rowid FROM Jobs WHERE jobs.oid = ${jobId}`;
   database.all(getOneJob, (error, result) => {
     if (error) console.log("could not retrieve Job Listing", error);
     else {
@@ -154,17 +154,26 @@ app.post("/api/Jobs", (req, res) => {
     req.body.salary,
     req.body.city_location,
     req.body.country_location,
-    req.body.profession_id,
+    parseInt(req.body.profession_id),
     req.body.week_posted,
     req.body.is_fulltime
   ];
   let insertNewJob = "INSERT INTO Jobs VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  database.all(insertNewJob, createNewJob, (error, rows) => {
+  database.run(insertNewJob, createNewJob, error => {
     if (error) {
       console.log("Could not add a Job to the Jobs Table", error);
       res.sendStatus(500);
     } else {
-      res.status(200).json(rows);
+      let getAllJobs = "SELECT * FROM Jobs";
+
+      database.all(getAllJobs, (error, results) => {
+        if (error) {
+          console.log("Get all Jobs table failed", error);
+          res.sendStatus(500);
+        } else {
+          res.status(200).json(results);
+        }
+      });
     }
   });
 });
@@ -203,7 +212,7 @@ app.delete("/api/Jobs/:id", (req, res) => {
       console.log("Could not delete Job listing", error);
     } else {
       console.log("Job Listing Deleted");
-      res.sendStatus(200);
+      res.status(200).json({ id: rowid });
     }
   });
 });
