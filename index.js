@@ -181,6 +181,7 @@ app.post("/api/Jobs", (req, res) => {
 //update a job info
 app.put("/api/Jobs/:id", (req, res) => {
   let jobId = parseInt(req.params.id);
+  console.log(req.body);
   let queryHelper = Object.keys(req.body).map(
     ele => `${ele.toUpperCase()} = ?`
   );
@@ -195,7 +196,16 @@ app.put("/api/Jobs/:id", (req, res) => {
       res.sendStatus(500);
     } else {
       console.log(`Job with ID ${jobId} was updated successfully`);
-      res.sendStatus(200);
+
+      let getAllJobs = "SELECT *, oid  FROM Jobs";
+      database.all(getAllJobs, (error, results) => {
+        if (error) {
+          console.log("Get all Jobs table failed", error);
+          res.sendStatus(500);
+        } else {
+          res.status(200).json(results);
+        }
+      });
     }
   });
 });
